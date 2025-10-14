@@ -1,2 +1,3 @@
 # STUtilities
-STUtilities - Simple Terminal Utilities, a set of CUI utilities for Windows written in MS-DOS batch
+the project is in beta test
+releases are available in RELEASES
