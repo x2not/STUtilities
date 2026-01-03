@@ -1,41 +1,59 @@
-echo off
+@echo off
 color a
-chcp 65001
-cd /D "%USERPROFILE%"
-title %random%%random%
+setlocal enabledelayedexpansion
+
+:: MAIN MENU
 :menu
 cls
-set chose=""
-title %random%%random%
+set "chose="
 echo Current directory: %cd%
-echo __________________________________________________________________________________
+echo ________________________________________________________________________________
 echo ..
-dir /B /A
+dir /B /A /O:N
 echo ╔═══════════╦═══════════╦════════════╦══════════╦════════════╦═════════╦═══════╗
-echo ║ad(MakeDir)║df(RemFile)║cf(CopyFile)║rn(ReName)║ef(TxEditor)║s(Search)║i(info)║
-echo ║cd(GoTo)   ║dd(RemDir) ║            ║r(Run)    ║ft(FileTree)║xp(Move) ║0(Exit)║
+echo ║ad(MakeDir)║df(RemFile)║xc(CopyFile)║rn(ReName)║ef(TxEditor)║s(Search)║i(info)║
+echo ║cd(GoTo)   ║dd(RemDir) ║xm(Move)    ║r(Run)    ║ft(FileTree)║         ║0(Exit)║
 echo ╚═══════════╩═══════════╩════════════╩══════════╩════════════╩═════════╩═══════╝
-set /p chose="#: "
-if "%chose%"=="ad" goto MAKE_DIR
-if "%chose%"=="cd" goto CHANGE_DIR
-if "%chose%"=="df" goto REMOVE_FILE
-if "%chose%"=="dd" goto REMOVE_DIR
-if "%chose%"=="cp" goto COPY
-if "%chose%"=="xp" goto MOVE
-if "%chose%"=="rn" goto RENAME
-if "%chose%"=="r" goto RUN
-if "%chose%"=="ef" goto TEXT_EDITOR
-if "%chose%"=="ft" goto FILE_TREE
-if "%chose%"=="s" goto SEARCH
-if "%chose%"=="i" goto info
+set /p "chose=#: "
+if "%chose%"=="" goto :menu
+
+:: Make new dir.
+if /i "%chose%"=="ad" goto :MAKE_DIR
+:: Change current directory.
+if /i "%chose%"=="cd" goto :CHANGE_DIR
+:: Remove file.
+if /i "%chose%"=="df" goto :REMOVE_FILE
+:: Remove directory.
+if /i "%chose%"=="dd" goto :REMOVE_DIR
+:: Copy file.
+if /i "%chose%"=="xc" goto :COPY
+:: Move file/folder
+if /i "%chose%"=="xm" goto :MOVE
+:: Rename file/folder
+if /i "%chose%"=="rn" goto :RENAME
+:: Run file
+if /i "%chose%"=="r" goto :RUN
+:: Edit text via TxEditor.bat
+if /i "%chose%"=="ef" goto :TEXT_EDITOR
+:: Shows the file tree with the current
+if /i "%chose%"=="ft" goto :FILE_TREE
+:: Search for files by pattern in the current directory.
+if /i "%chose%"=="s" goto :SEARCH
+
+:: Get information
+if /i "%chose%"=="i" goto :info
 if "%chose%"=="0" exit
+echo.
+echo Command "%chose%" not found.
+pause
 goto menu
+
 
 :MAKE_DIR
 set /p "name=Enter folder name: "
 if not exist "%name%" (
     mkdir "%name%" || (
-        echo Failed to create directory.
+        echo Error: Failed to create directory
         pause
     )
 ) else (
@@ -43,7 +61,6 @@ if not exist "%name%" (
     pause
 )
 goto menu
-
 
 :CHANGE_DIR
 set /p "dir=Enter directory path: "
@@ -55,12 +72,11 @@ if exist "%dir%" (
 )
 goto menu
 
-
 :REMOVE_FILE
 set /p "name=Enter file name: "
 if exist "%name%" (
     del /P "%name%" || (
-        echo Failed to delete file.
+        echo Error: Failed to delete file.
         pause
     )
 ) else (
@@ -74,7 +90,7 @@ goto menu
 set /p "name=Enter folder name: "
 if exist "%name%" (
     rmdir /S "%name%" || (
-        echo Failed to remove directory.
+        echo Error: Failed to remove directory.
         pause
     )
 ) else (
@@ -83,14 +99,13 @@ if exist "%name%" (
 )
 goto menu
 
-
-:COPY_FILE
-set /p "name=Enter dir name: "
+:COPY
+set /p "name=Enter name: "
 set /p "dir=Enter destination directory: "
-if exist "%name%" (
+if exist "%name%" if not exist "%name%\" (
     if exist "%dir%" (
-        xcopy "%name%" "%dir%" || (
-            echo Failed to copy.
+        copy "%name%" "%dir%\" || (
+            echo Error: Failed to copy.
             pause
         )
     ) else (
@@ -98,19 +113,18 @@ if exist "%name%" (
         pause
     )
 ) else (
-    echo Error: Directory '%name%' does not exist.
+    echo Error: File or directory '%name%' does not exist.
     pause
 )
 goto menu
 
-
 :MOVE
-set /p "name=Enter file name: "
+set /p "name=Enter name: "
 set /p "dir=Enter destination directory: "
 if exist "%name%" (
     if exist "%dir%" (
-        move /-Y "%name%" "%dir%" || (
-            echo Failed to move.
+        move "%name%" "%dir%" || (
+            echo Error: Failed to move.
             pause
         )
     ) else (
@@ -118,7 +132,7 @@ if exist "%name%" (
         pause
     )
 ) else (
-    echo Error: File '%name%' does not exist.
+    echo Error: File or directory '%name%' does not exist.
     pause
 )
 goto menu
@@ -129,7 +143,7 @@ set /p "name=Enter current name: "
 set /p "nwname=Enter new name: "
 if exist "%name%" (
     ren "%name%" "%nwname%" || (
-        echo Failed to rename.
+        echo Error: Failed to rename.
         pause
     )
 ) else (
@@ -140,7 +154,7 @@ goto menu
 
 
 :RUN
-set /p "name=Enter file name: "
+    set /p "name=Enter file name: "
 if exist "%name%" (
     start "" "%name%"
 ) else (
@@ -149,28 +163,25 @@ if exist "%name%" (
 )
 goto menu
 
-
 :TEXT_EDITOR
-if exist "%~dp0\TxEditor.bat" (
-    start "TextEditor" "%~dp0\TxEditor.bat"
-	exit
+set /p "name=Enter file name to edit: "
+if exist "%name%" (
+    call "%~dp0\TxEditor.bat" "%name%"
 ) else (
-    echo Error: Text Editor 'TxEditor.bat' not found.
-    pause
+    echo File not found, creating new...
+    call "%~dp0\TxEditor.bat" "%name%"
 )
 goto menu
-
 
 :FILE_TREE
 tree /F /A
 pause
 goto menu
 
-
 :SEARCH
 set /p "patrn=Enter search pattern: "
 dir /B /S /A *%patrn%* 2>nul && pause || (
-    echo No files found.
+    echo Error: Files not found.
     pause
 )
 goto menu
@@ -179,24 +190,13 @@ goto menu
 :info
 cls
 ver
-echo Run script
-echo /████████\        ██████████████▌       /█████████▌
-echo ██                      ██▌             ██
-echo ██                      ██▌             ██
-echo ██                      ██▌             ██
-echo \████████\              ██▌             ██████████▌
-echo         ██              ██▌             ██
-echo         ██              ██▌             ██
-echo         ██              ██▌             ██
-echo \████████/              ██▌             \█████████▌
-echo           STE - Simple Terminal Explorer
-echo                    INFO:
+echo  INFO:
 echo  [+] Add folders
-echo  [+] Rename files and folders
-echo  [+] Remove files and folders
+echo  [+] Rename files and directory
+echo  [+] Remove files and directory
 echo  [+] Change directory
-echo  [+] Copy files
-echo  [+] Move files and folders
+echo  [+] Copy files and directory
+echo  [+] Move files and directory
 echo  [+] Edit text file (via TxEditor.bat)
 echo  [+] Viev file tree
 echo  [+] Run programms
