@@ -1,4 +1,5 @@
 @echo off
+chcp 1251
 setlocal enabledelayedexpansion
 
 :: MAIN MENU
@@ -17,10 +18,10 @@ echo ___________________________________________________________________________
 echo ..
 dir /B /A /O:N
 echo.
-echo ╔═══════════╦═══════════╦════════════╦══════════╦════════════╦═════════╦═══════╗
-echo ║ad(MakeDir)║df(RemFile)║xc(CopyFile)║rn(ReName)║ef(TxEditor)║s(Search)║i(info)║
-echo ║cd(GoTo)   ║dd(RemDir) ║xm(Move)    ║r(Run)    ║ft(FileTree)║         ║0(Exit)║
-echo ╚═══════════╩═══════════╩════════════╩══════════╩════════════╩═════════╩═══════╝
+echo +---------------------+-------------------+-------------------+-------------------+-------------------+----------------+------------+
+echo ^| ad(MakeDir) ^| df(RemFile) ^| xc(CopyFile) ^|rn(ReName) ^| ef(TxEditor) ^| s(Search) ^| i(info)  ^|
+echo ^| cd(GoTo)      ^|dd(RemDir)  ^| xm(Move)    ^| r(Run)          ^| ft(FileTree)   ^|                 ^| 0(Exit) ^|
+echo +---------------------+------------------+--------------------+-------------------+-------------------+----------------+------------+
 set /p "chose=#: "
 if "%chose%"=="" goto :menu
 
@@ -69,6 +70,7 @@ if not exist "%name%" (
 )
 goto menu
 
+
 :CHANGE_DIR
 set /p "dir=Enter directory path: "
 if exist "%dir%" (
@@ -78,6 +80,7 @@ if exist "%dir%" (
     pause
 )
 goto menu
+
 
 :REMOVE_FILE
 set /p "name=Enter file name: "
@@ -106,6 +109,7 @@ if exist "%name%" (
 )
 goto menu
 
+
 :COPY
 set /p "name=Enter name: "
 set /p "dir=Enter destination directory: "
@@ -124,6 +128,7 @@ if exist "%name%" if not exist "%name%\" (
     pause
 )
 goto menu
+
 
 :MOVE
 set /p "name=Enter name: "
@@ -170,6 +175,7 @@ if exist "%name%" (
 )
 goto menu
 
+
 :TEXT_EDITOR
 set /p "name=Enter file name to edit: "
 if exist "%name%" (
@@ -179,6 +185,13 @@ if exist "%name%" (
     call "%~dp0\TxEditor.bat" "%name%"
 )
 goto menu
+
+
+:FILE_TREE
+tree /F /A
+pause
+goto menu
+
 
 :SEARCH
 set /p "pattern=Enter search pattern: "
