@@ -1,11 +1,10 @@
 @echo off
-color a
 setlocal enabledelayedexpansion
 cls
 
 :FILE_NAME
 echo Ctrl + C to exit
-:: If an argument is passed, we use it; otherwise, we ask for input.
+:: If an argument is passed, we use it; otherwise, ask for input.
 if "%~1"=="" (
     set /p "name=File Name: "
 ) else (
@@ -14,7 +13,7 @@ if "%~1"=="" (
 
 if not exist "%name%" (
 break > "%name%" || (
-    echo Error: Failed to create file
+    echo ERROR: Failed to create file
     pause
     goto :FILE_NAME
 )
